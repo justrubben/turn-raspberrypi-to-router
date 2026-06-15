@@ -1,0 +1,109 @@
+#install hostapd, dnsmasq and iptables
+ sudo apt update
+ sudo apt install hostapd dnsmasq iptables -y
+
+#enable ip forwarding by creating IP forward file
+ sudo nano /etc/sysctl.d/99-ipforward.conf
+ 
+#add
+ net.ipv4.ip_forward = 1
+
+#Apply the configuration
+ sudo sysctl --system
+
+#Verify
+ sysctl net.ipv4.ip_forward
+
+#it should display
+ net.ipv4.ip_forward = 1
+
+#stop hostapd
+ sudo systemctl stop hostapd
+
+#Identify your wireless interface
+ ifconfig
+
+#Create a hostapd configuration
+ sudo nano /etc/hostapd/hostapd.conf
+
+#add and save
+ interface=wirelessadapter
+ driver=nl80211
+
+ ssid=choosewifiname
+
+ hw_mode=g
+ channel=6
+
+ country_code=US
+
+ wmm_enabled=1
+
+ auth_algs=1
+ ignore_broadcast_ssid=0
+
+ wpa=2
+ wpa_passphrase=choosewifipassword
+ wpa_key_mgmt=WPA-PSK
+ rsn_pairwise=CCMP
+
+#create file to tell hostapd where the config is and save
+ sudo nano /etc/default/hostapd
+
+#add
+ DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+#enable and start hostapd
+ sudo systemctl unmask hostapd
+ sudo systemctl enable hostapd
+ sudo systemctl start hostapd
+
+#verify its running
+ sudo systemctl status hostapd
+
+#set up dnsmasq by first backing up existing config file
+ sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.backup
+ 
+#create fresh config file
+ sudo nano /etc/dnsmasq.conf
+
+#add
+ #interface to listen on
+ interface=wifiadapter
+
+ #DHCP range for wificlients
+ dhcp-range=x.x.x.x,x.x.x.x,255.255.255.0,24
+
+ #default gateway(its own ip address)
+ dhcp-option=x,x.x.x.x
+
+ #DNS server to give clients
+ dhcp-option=x,x.x.x.x,x.x.x.x
+
+ #never forward plain domain names
+ domain-needed
+
+ #never forward addresses
+ bogus-priv
+
+#setup NAT with itable rules
+ sudo iptables -t net -A POSTROUTING -o ethernetadapter -j MASQUARADE
+ sudo iptables -A FORWARD -i wifiadapter -o ethernetadapter -J ACCEPT
+ sudo iptables -A FORWARD -i ethernetadapter -o wifiadapter -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+#install iptables-persistent
+ sudo apt install iptables-persistent
+
+#verify rules saved
+ sudo cat /etc/iptables/rules.v4
+
+#save rules
+sudo netfilter-persistent save
+
+#set static ip
+
+#make sure wifi adapter is set to monitor/mastered mode instead of managed.
+  iwconfig adapername
+
+#IF ITS STILL IN MANAGED MODE FORCE IT INTO MONITOR/MASTERED
+ sudo nmcli device set wlan0 managed no

@@ -86,6 +86,18 @@
  #never forward addresses
  bogus-priv
 
+#start dnsmasq
+ sudo systemctl start dnsmasq
+
+#IF FAILED TO START DNSMASQ due to port 53 being used(most likey networkd-resolved): check what serive is using port 53
+ #sudo ss -tulnp | grep :53
+ #disable and stop:sudo systemctl stop systemd-resolved
+                   sudo systemctl disable systemd-resolved
+ #then start dnsmasq
+
+#verify
+ sudo systemctl status dnsmasq
+
 #setup NAT with itable rules
  sudo iptables -t net -A POSTROUTING -o ethernetadapter -j MASQUARADE
  sudo iptables -A FORWARD -i wifiadapter -o ethernetadapter -J ACCEPT

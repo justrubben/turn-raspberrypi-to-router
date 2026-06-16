@@ -86,7 +86,8 @@
  #never forward addresses
  bogus-priv
 
-#start dnsmasq
+#start and enable dnsmasq
+ sudo systemctl enable dnsmasq
  sudo systemctl start dnsmasq
 
 #IF FAILED TO START DNSMASQ due to port 53 being used(most likey networkd-resolved): check what serive is using port 53

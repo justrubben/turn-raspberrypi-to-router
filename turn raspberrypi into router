@@ -100,7 +100,7 @@
  sudo systemctl status dnsmasq
 
 #setup NAT with itable rules
- sudo iptables -t net -A POSTROUTING -o ethernetadapter -j MASQUARADE
+ sudo iptables -t nat -A POSTROUTING -o ethernetadapter -j MASQUARADE
  sudo iptables -A FORWARD -i wifiadapter -o ethernetadapter -J ACCEPT
  sudo iptables -A FORWARD -i ethernetadapter -o wifiadapter -m state --state ESTABLISHED,RELATED -j ACCEPT
 

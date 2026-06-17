@@ -8,6 +8,9 @@
 #add
  net.ipv4.ip_forward = 1
 
+#verify ip forward
+ cat /etc/sysctl.d/99-ipforward.conf
+
 #Apply the configuration
  sudo sysctl --system
 
@@ -100,7 +103,7 @@
  sudo systemctl status dnsmasq
 
 #setup NAT with itable rules
- sudo iptables -t nat -A POSTROUTING -o ethernetadapter -j MASQUARADE
+ sudo iptables -t nat -A POSTROUTING -o ethernetadapter -j MASQUERADE
  sudo iptables -A FORWARD -i wifiadapter -o ethernetadapter -J ACCEPT
  sudo iptables -A FORWARD -i ethernetadapter -o wifiadapter -m state --state ESTABLISHED,RELATED -j ACCEPT
 
@@ -120,3 +123,9 @@ sudo netfilter-persistent save
 
 #IF ITS STILL IN MANAGED MODE FORCE IT INTO MONITOR/MASTERED
  sudo nmcli device set wlan0 managed no
+
+#restart NetworkManager and hostapd
+ sudo systemctl restart NetworkManager
+ sudo systemctl restart hostapd
+
+#check if adapter is in monitor/master mode again

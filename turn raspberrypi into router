@@ -124,6 +124,23 @@ sudo netfilter-persistent save
 #IF ITS STILL IN MANAGED MODE FORCE IT INTO MONITOR/MASTERED
  sudo nmcli device set wlan0 managed no
 
+#create config file to make AP mode perment when device reboots
+ sudo nano /etc/systemd/system/wlan0-unmanaged.service
+
+#add:
+ [Unit]
+ Description=Set wlan0 unmanaged before hostapd
+ Before=hostapd.service
+ After=NetworkManager.service
+ Wants=NetworkManager.service
+
+ [Service]
+ Type=oneshot
+ ExecStart=/usr/bin/nmcli device set wlan0 managed no
+
+ [Install]
+ WantedBy=multi-user.target
+
 #restart NetworkManager and hostapd
  sudo systemctl restart NetworkManager
  sudo systemctl restart hostapd

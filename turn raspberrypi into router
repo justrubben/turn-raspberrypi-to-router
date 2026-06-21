@@ -115,8 +115,7 @@
 
 #save rules
 sudo netfilter-persistent save
-
-#set static ip
+ 
 
 #make sure wifi adapter is set to monitor/mastered mode instead of managed.
   iwconfig adapername
@@ -124,7 +123,7 @@ sudo netfilter-persistent save
 #IF ITS STILL IN MANAGED MODE FORCE IT INTO MONITOR/MASTERED
  sudo nmcli device set wlan0 managed no
 
-#create config file to make AP mode perment when device reboots
+#create config file to make AP mode perment when device reboots and set static ip(not NetworkManager or systemd-networkd)
  sudo nano /etc/systemd/system/wlan0-unmanaged.service
 
 #add:
@@ -137,6 +136,7 @@ sudo netfilter-persistent save
  [Service]
  Type=oneshot
  ExecStart=/usr/bin/nmcli device set wlan0 managed no
+ ExecStart=/sbin/ip addr add 192.168.2.1/24 dev wlan0
 
  [Install]
  WantedBy=multi-user.target

@@ -1,6 +1,6 @@
-#install hostapd, dnsmasq and iptables
+#install hostapd, dnsmasq, iptables-persistent and iptables
  sudo apt update
- sudo apt install hostapd dnsmasq iptables -y
+ sudo apt install hostapd dnsmasq iptables iptables-persistent -y
 
 #enable ip forwarding by creating IP forward file
  sudo nano /etc/sysctl.d/99-ipforward.conf
@@ -102,20 +102,22 @@
 #verify
  sudo systemctl status dnsmasq
 
+#enable iptables-persistent
+ sudo systemctl enable netfilter-persistent
+
 #setup NAT with itable rules
  sudo iptables -t nat -A POSTROUTING -o ethernetadapter -j MASQUERADE
  sudo iptables -A FORWARD -i wifiadapter -o ethernetadapter -J ACCEPT
  sudo iptables -A FORWARD -i ethernetadapter -o wifiadapter -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-#install iptables-persistent
- sudo apt install iptables-persistent
 
 #verify rules saved
  sudo cat /etc/iptables/rules.v4
 
 #save rules
 sudo netfilter-persistent save
- 
+
+#start persistent rules
+ sudo systemctl start netfilter-persistent
 
 #make sure wifi adapter is set to monitor/mastered mode instead of managed.
   iwconfig adapername
